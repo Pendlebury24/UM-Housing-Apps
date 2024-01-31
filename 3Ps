@@ -1,0 +1,17 @@
+1/30/2024
+
+Progress:
+  I've made a replication of the report missing a few item that I need to code. I also learned how to pull and make reports in the dataware housing software. 
+  I need to ask Melissa on some tips as sometimes it doesn't work for me.
+
+Problems:
+  Currently my problems have been more conceptual. Is kinda hard to plan system if you don't know what the client wants. Especially from my brief research you maybe able to connect power bi directly to starrez
+  which would limit the coding needed. Outside of forecasting it honestly maybe more inline with what she's looking for to have a live data connection to excel
+  Finally I may be missing data to make an accurate model for forecasting based on the base reports the only predictors I have are previous year applications 
+  and some basic identifiers such as age and place of residence. 
+
+Plans:
+  Now and next week I would hope to build a finished dashboard that Melissa wants after getting feedback from her. Research more about connecting starrez to power bi, begin building a 
+  forecasting model either from the data I have access to or see if I'm able to get some more. 
+
+  I spent about 8 hours this week working on the project. 
