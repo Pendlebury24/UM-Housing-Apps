@@ -1,3 +1,17 @@
+2/13/2024
+
+Progress
+  I've made more progress on making an Excel file that builds out what she needs for the reports. I'm still investigating ways to have a more complete database
+  in Power BI. I have a meeting with her this Thursday. I also tried to figure out which type of model would be best for forecasting. It looks like it would be EWMA.
+
+Problems
+  Excel doesn't feel like the most efficient tool, as it requires the client to drop the report in, but currently, it's the best I've got. The major hiccup for me 
+  right now, they use a different format for weeks 1-34, which they usually calculated manually; trying to automate it in Excel or BI has been hard to accomplish
+
+Plans
+  I still haven't started working on the forecasting model; hopefully, I will start that this coming week.
+  I spent 6 hours this week working on the project.
+
 2/06/2024
 
 Progress
