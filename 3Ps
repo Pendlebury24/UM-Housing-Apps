@@ -1,3 +1,20 @@
+3/5/2024
+
+Progress
+  Showed dashboard to client and am making adjustments based off feedback. Was able to get reports that go back to 2019. Reworked the dashboard to account for those. For analysis portion decided
+  to look at cancelations and those who come back year over year. I've done some basic summary statistics on this.  
+
+Problems
+  Using the combined reports there are a difference in numbers from the static ones. I believe this maybe do to things like people canceling mid year which would update the database but not a
+  report pulled in months prior which is what they were using
+
+Plans
+  work on analysis and start writing the engineering portion of the paper(most likely outline) Make minor corrections to the dashboard. 
+
+I worked about 10 hours this week on the project. 
+
+
+
 2/24/2024
 
 Progress
