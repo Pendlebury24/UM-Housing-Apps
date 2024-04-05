@@ -1,0 +1,188 @@
+---
+title: "Capstone"
+author: "Ethan Pendlebury"
+date: "2024-03-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+
+```{r}
+library(readxl)
+Data <- read_excel("Data 2019-2023.xlsx")
+View(Data_2019_2023)
+```
+
+
+```{r}
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+library(stats)
+library(MASS)
+```
+
+```{r}
+summary(Data)
+```
+Set seed and split data into training and testing sets. I am using a 70/30 split for the training and testing sets.
+```{r}
+set.seed(123)
+
+index <- sample(1:nrow(Data), nrow(Data)*0.7)
+
+train_data <- Data[index,]
+test_data <- Data[-index,]
+
+```
+
+Logistic regression model 
+```{r}
+model <- glm(`No Show` ~ `M/F`   + Age + Resident + Month + Campus + Class, data = train_data, family = binomial)
+```
+
+
+```{r}
+summary(model)
+```
+Current model used for Capstone paper 
+
+```{r}
+model2 <- glm(`No Show` ~ `M/F` + Age + Resident + Month + Campus + Class + `Admit Status`, data = train_data, family = binomial)
+
+summary(model2)
+```
+
+
+
+Data sample of 8 no show graduate students 37 cancellations total small sample size to pull from. 81 graduate in the entire data set.
+
+```{r}
+model3 <- glm(`No Show` ~ Class + `Admit Status`, data = train_data, family = binomial)
+
+summary(model3)
+```
+
+
+
+Changing dependent variable to all students who canceled their application not just those in August
+
+```{r}
+model4 <- glm(`Canceled` ~ `M/F` + Age + Resident + Month + Campus + Class + `Admit Status`, data = train_data, family = binomial)
+
+summary(model4)
+```
+
+
+
+
+
+
+decision tree model
+```{r}
+
+tree_model <- rpart(`No Show` ~ `Male` + `Age` + Month + Class, data = train_data, method = "class", control = rpart.control(minsplit = 1, minbucket = 10, cp = 0.001))
+```
+
+
+```{r}
+
+# Plot the decision tree
+rpart.plot(tree_model, type = 4, extra = 101)
+```
+
+
+
+Tree model with more variables 
+```{r}
+
+tree_model2 <- rpart(`Canceled` ~ `M/F` + Age + Resident + Month + Campus + Class + `Admit Status` + Reason, data = train_data, method = "class", control = rpart.control(minsplit = 10, minbucket = 100, cp = 0.001))
+```
+```{r}
+
+# Plot the decision tree
+rpart.plot(tree_model2, type = 4, extra = 101)
+```
+
+```{r}
+contingency_table <- rbind(no_show, applied - no_show)
+
+# Perform the chi-square test for homogeneity
+test_result <- chisq.test(contingency_table)
+
+# Output the results
+list(
+  chi_square_statistic = test_result$statistic,
+  p_value = test_result$p.value,
+  degrees_of_freedom = test_result$parameter,
+  expected_frequencies = test_result$expected
+)
+```
+
+
+
+```{r}
+applied <- c(1689, 1510, 1781, 2164, 2298)
+no_show <- c(80, 61, 63, 61, 88)
+
+# Function to perform the z-test for two proportions
+perform_z_test <- function(n1, x1, n2, x2) {
+  p1 <- x1 / n1
+  p2 <- x2 / n2
+  p_pooled <- (x1 + x2) / (n1 + n2)
+  se <- sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+  z <- (p1 - p2) / se
+  p_value <- 2 * (1 - pnorm(abs(z)))
+  return(c(z = z, p_value = p_value))
+}
+
+# Calculate the Bonferroni correction for multiple comparisons
+number_of_comparisons <- choose(length(applied), 2)
+bonferroni_alpha <- 0.05 / number_of_comparisons
+
+# Perform the Z-tests for each pair of years
+results <- data.frame(
+  Year1 = integer(),
+  Year2 = integer(),
+  Z_stat = numeric(),
+  P_value = numeric(),
+  Significant = logical()
+)
+
+# Compare each year with every other year
+for (i in 1:(length(applied)-1)) {
+  for (j in (i+1):length(applied)) {
+    test_result <- perform_z_test(applied[i], no_show[i], applied[j], no_show[j])
+    results <- rbind(results, c(2019 + i - 1, 2019 + j - 1, test_result, test_result[2] < bonferroni_alpha))
+  }
+}
+
+# Rename the columns of the results data frame
+colnames(results) <- c("Year1", "Year2", "Z_stat", "P_value", "Significant")
+
+# Output the results sorted by p-value
+results[order(results$P_value), ]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
