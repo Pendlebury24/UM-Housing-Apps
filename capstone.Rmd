@@ -15,24 +15,33 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(readxl)
-Data <- read_excel("Data 2019-2023.xlsx")
-View(Data_2019_2023)
-```
-
-
-```{r}
-library(ggplot2)
 library(rpart)
 library(rpart.plot)
 library(stats)
 library(MASS)
+library(janitor)
+library(tidyverse)
+library(tidymodels)
+library(themis)
 ```
 
 ```{r}
+
+# JC: Switching to some more standard approaches. Moved the includes up.
+data <- read_excel("Data 2019-2023.xlsx") %>% 
+  clean_names()
+
+View(data)
+
+Data <- data # just so I don't have to change all the capital D
+
 summary(Data)
 ```
 Set seed and split data into training and testing sets. I am using a 70/30 split for the training and testing sets.
 ```{r}
+
+# JC: Seems weird that you're not using all the tidymodels stuff which is designed for this.
+
 set.seed(123)
 
 index <- sample(1:nrow(Data), nrow(Data)*0.7)
@@ -40,12 +49,65 @@ index <- sample(1:nrow(Data), nrow(Data)*0.7)
 train_data <- Data[index,]
 test_data <- Data[-index,]
 
+# JC: only 251 noshows in training data. This is probably a case to rebalance
+# the data by either upsampling the 1s or using something like SMOTE. You've
+# got a model with a 97% accuracy just saying no_show=0
+
 ```
 
 Logistic regression model 
 ```{r}
-model <- glm(`No Show` ~ `M/F`   + Age + Resident + Month + Campus + Class, data = train_data, family = binomial)
+#model <- glm(`No Show` ~ `M/F`   + Age + Resident + Month + Campus + Class, data = train_data, family = binomial)
+
+# JC: I'd drop the "U" on m_f. You've got a TON of missing data in here. I'd consider
+# where you could do some imputation. 
+
+model <- glm(no_show ~ m_f  + age + resident + month + campus + class, 
+             data = train_data, family = binomial)
+
+anova(model,test="Chisq")
+
+
 ```
+
+```{r}
+# JC: just doing some exploring
+
+anova(lm(no_show ~ m_f, data=data %>% filter(m_f != "U")))
+# I'm shocked this isn't higher. Including "U" is a 
+
+# JC trying to see what's going on to make age such a strong predictor
+train_data <- train_data %>% 
+  mutate(
+    age_grp = case_when(
+      age <= 19 ~ "18-19",
+      age <= 21 ~ "20-21",
+      age <= 25 ~ "22-25",
+      TRUE ~ "26+"
+    )
+  )
+
+summary(lm(no_show ~ age_grp,data=train_data))
+
+# I'm worried that it's being driven by some no-showing olds: 
+train_data %>% 
+  group_by(age_grp) %>% 
+  summarize(
+    n=n(),
+    num_no_shows=sum(no_show),
+    frac_no_show = mean(no_show)
+  )
+# I think this age relationship is spurious. 
+
+# At this point I switched over to my own r script
+
+
+
+
+
+```
+
+
 
 
 ```{r}
